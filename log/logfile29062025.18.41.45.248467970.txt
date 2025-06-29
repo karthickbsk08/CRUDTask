@@ -1,0 +1,26 @@
+2025/06/29 18:41:57 log.go:139: @@ bea9e071d0034a929d17786eea9397e9 @@ (  ) @@ handler/createtask.go @@ tasks/handler.CreateTask @@ ln 19 @@ CreateTask(+)
+2025/06/29 18:41:57 govalidator.go:27: s :  {0 Complete backend API Finish the development of the backend REST API. Pending 2025-02-25T00:00:00Z    }
+2025/06/29 18:41:57 server.go:3489: http: panic serving [::1]:34140: reflect: call of reflect.Value.Elem on struct Value
+goroutine 21 [running]:
+net/http.(*conn).serve.func1()
+	/usr/local/go/src/net/http/server.go:1947 +0xbe
+panic({0x80aaa0?, 0xc000136c60?})
+	/usr/local/go/src/runtime/panic.go:785 +0x132
+reflect.Value.Elem({0x869d80?, 0xc00017ccf0?, 0x2?})
+	/usr/local/go/src/reflect/value.go:1262 +0x194
+tasks/GovalidatorPkg.CleanAndValidateStruct({0x869d80, 0xc00017ccf0})
+	/home/it-lap9/KarthickPrac/Tasks_go_project/TASKS/GovalidatorPkg/govalidator.go:28 +0x138
+tasks/handler.CreateTask({0x94c5e0, 0xc00019c1c0}, 0xc00027c8c0)
+	/home/it-lap9/KarthickPrac/Tasks_go_project/TASKS/handler/createtask.go:34 +0x197
+tasks/handler.InterfaceAPForAllTasks({0x94c5e0?, 0xc00019c1c0?}, 0xc000275770?)
+	/home/it-lap9/KarthickPrac/Tasks_go_project/TASKS/handler/methods.go:11 +0x53
+net/http.HandlerFunc.ServeHTTP(0xc00027c780?, {0x94c5e0?, 0xc00019c1c0?}, 0x10?)
+	/usr/local/go/src/net/http/server.go:2220 +0x29
+github.com/gorilla/mux.(*Router).ServeHTTP(0xc000166600, {0x94c5e0, 0xc00019c1c0}, 0xc00027c640)
+	/home/it-lap9/go/pkg/mod/github.com/gorilla/mux@v1.8.1/mux.go:212 +0x1e2
+net/http.serverHandler.ServeHTTP({0x94a6b0?}, {0x94c5e0?, 0xc00019c1c0?}, 0x6?)
+	/usr/local/go/src/net/http/server.go:3210 +0x8e
+net/http.(*conn).serve(0xc00017c750, {0x94d688, 0xc0002753e0})
+	/usr/local/go/src/net/http/server.go:2092 +0x5d0
+created by net/http.(*Server).Serve in goroutine 1
+	/usr/local/go/src/net/http/server.go:3360 +0x485

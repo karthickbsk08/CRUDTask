@@ -1,0 +1,10 @@
+Db_Server = "localhost"
+Db_Port = 5432
+Db_User = "tasks_user"
+Db_Password = "task_9360"
+Db_Database = "Tasks"
+DBType = "postgres"
+
+Max_Open_Conns=100
+Max_Idle_Conns=10
+Conn_Max_Idle_Time=120

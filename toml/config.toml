@@ -1,0 +1,6 @@
+EXPIRE_TIME_JWT_TOKEN = "56"
+JWT_App_Name = "tasks"
+JWT_Secret_Key = "GXIEB6qFKzdx+5XoEL+kNGZflt0zt+lt3/fRKRwxU1Wla6acxXrj3iS521xVE5+MOs/Py9Q1NMSCg0RSozs/2Q=="
+RateLimitInitialBurstReqCount = "1"
+RateLimitReqPerSecond = "1"
+RefreshPeriod = "0"
