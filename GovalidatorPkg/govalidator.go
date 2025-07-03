@@ -1,9 +1,9 @@
 package govalidatorpkg
 
 import (
-	"log"
 	"reflect"
 	"strings"
+	"tasks/helpers"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/schema"
@@ -22,22 +22,27 @@ var Decoder = schema.NewDecoder()
 // 	Email string `valid:"required,email,trim,lower"`
 // }
 
-func CleanAndValidateStruct(s any) (any, error) {
+func CleanAndValidateStruct(pDebug *helpers.HelperStruct, pInputStruct any) error {
+	pDebug.Log(helpers.Statement, "CleanAndValidateStruct(+)")
 
-	log.Println("s : ", s)
-	val := reflect.ValueOf(s)
+	var lErr error
+
+	val := reflect.ValueOf(pInputStruct)
+	if val.Kind() == reflect.Ptr {
+		val = val.Elem() // Dereference to access fields
+	}
 	typ := val.Type()
-	log.Println("val : ", val)
-	log.Println("typ : ", typ)
 
-	for i := range val.NumField() {
+	for i := 0; i < val.NumField(); i++ {
 		fieldVal := val.Field(i)
 		fieldType := typ.Field(i)
 		tag := fieldType.Tag.Get("valid")
 
 		// Apply trimming
 		if strings.Contains(tag, "trim") && fieldVal.Kind() == reflect.String {
+			// pDebug.Log(helpers.Statement, "Trimming field: ", fieldType.Name, "Value lenght : ", len(fieldVal.String()))
 			fieldVal.SetString(strings.TrimSpace(fieldVal.String()))
+			// pDebug.Log(helpers.Statement, "Trimmed value: ", fieldVal.String(), "Value lenght : ", len(fieldVal.String()))
 		}
 
 		// Apply lowercasing
@@ -45,10 +50,12 @@ func CleanAndValidateStruct(s any) (any, error) {
 			fieldVal.SetString(strings.ToLower(fieldVal.String()))
 		}
 	}
-	err := validate.Struct(s)
-	if err != nil {
-		log.Println("err : ", err)
-		return s, err
+	lErr = validate.Struct(pInputStruct)
+	if lErr != nil {
+		pDebug.Log(helpers.Elog, "lErr : ", lErr)
+		return helpers.ErrReturn(lErr)
 	}
-	return s, nil
+
+	pDebug.Log(helpers.Statement, "CleanAndValidateStruct(-)")
+	return nil
 }

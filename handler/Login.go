@@ -29,7 +29,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	lval, lErr = govalidatorpkg.CleanAndValidateStruct(lLoginReq)
+	lErr = govalidatorpkg.CleanAndValidateStruct(lDebug, lLoginReq)
 	if lErr != nil {
 		log.Println("Error on decoding")
 		fmt.Fprint(w, http.StatusInternalServerError)

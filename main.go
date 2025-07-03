@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	connectdb "tasks/ConnectDB"
 	"tasks/handler"
 	"time"
 
@@ -19,6 +20,11 @@ func main() {
 	defer lFile.Close()
 	log.SetOutput(lFile)
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+
+	lErr = connectdb.Build_Global_Connections()
+	if lErr != nil {
+		log.Fatalf("error building global db connections: %v", lErr)
+	}
 
 	router := mux.NewRouter()
 

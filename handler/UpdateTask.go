@@ -33,7 +33,7 @@ func UpdateTaskByAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	lVal, lErr = govalidatorpkg.CleanAndValidateStruct(lUpdateTaskReq)
+	lErr = govalidatorpkg.CleanAndValidateStruct(lDebug, lUpdateTaskReq)
 	if lErr != nil {
 		lUpdateTaskResp.APIStatus = constants.ErrorCode
 		lUpdateTaskResp.APIError = "HCT001 : " + lErr.Error()
@@ -57,7 +57,7 @@ func UpdateTaskByAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	lVal, lErr = govalidatorpkg.CleanAndValidateStruct(lUpdateTaskResp)
+	lErr = govalidatorpkg.CleanAndValidateStruct(lDebug, lUpdateTaskResp)
 	if lErr != nil {
 		lUpdateTaskResp.APIStatus = constants.ErrorCode
 		lUpdateTaskResp.APIError = "HCT001 : " + lErr.Error()

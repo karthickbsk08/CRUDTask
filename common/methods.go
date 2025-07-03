@@ -2,6 +2,7 @@ package common
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -27,4 +28,14 @@ func ReadUrlId(r *http.Request, w http.ResponseWriter) string {
 		return ""
 	}
 	return variables["id"]
+}
+
+// In a common package
+func TypeChecker[T any](val any) error {
+	var zero T
+	_, ok := val.(*T)
+	if !ok {
+		return fmt.Errorf("error: expected type %T, got %T", zero, val)
+	}
+	return nil
 }

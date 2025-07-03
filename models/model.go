@@ -4,10 +4,10 @@ import "time"
 
 type CreateTask struct {
 	ID          int    `json:"ID"`
-	Title       string `json:"Title" validate:"required"`
-	Description string `json:"Description"`
-	Status      string `json:"Status" validate:"oneof='Pending' 'In Progress' 'Completed'"`
-	DueDate     string `json:"DueDate"`
+	Title       string `json:"Title" validate:"required" valid:"trim"`
+	Description string `json:"Description" valid:"trim"`
+	Status      string `json:"Status" validate:"oneof='Pending' 'In Progress' 'Completed'" valid:"trim"`
+	DueDate     string `json:"DueDate" valid:"trim"`
 	CreatedAt   string `json:"CreatedAt"`
 	UpdatedAt   string `json:"UpdatedAt"`
 	APIStatus   string `json:"APIStatus"`
@@ -28,17 +28,17 @@ type TaskQueryParams struct {
 	Status        string `schema:"status"`
 	DueDateAfter  string `schema:"due_date_after"`
 	DueDateBefore string `schema:"due_date_before"`
-	SortBy        string `validate:"omitempty,oneof=created_at updated_at due_date" schema:"sort_by"`
+	SortBy        string `validate:"omitempty,oneof=createdat updatedat duedate" schema:"sort_by"`
 	SortOrder     string `validate:"omitempty,oneof=asc desc" schema:"sort_order"`
 }
 
 type GetAllTaskResp struct {
-	Tasks     []CreateTask `json:"tasks"`
-	Page      int          `json:"page"`
-	Limit     int          `json:"limit"`
-	Total     int          `json:"total"`
-	APIStatus string       `json:"APIStatus"`
-	APIError  string       `json:"APIError"`
+	Tasks     []Tasks `json:"tasks"`
+	Page      int     `json:"page"`
+	Limit     int     `json:"limit"`
+	Total     int     `json:"total"`
+	APIStatus string  `json:"APIStatus"`
+	APIError  string  `json:"APIError"`
 }
 
 type LoginDetails struct {
@@ -47,15 +47,15 @@ type LoginDetails struct {
 }
 
 type Tasks struct {
-	ID          int       `gorm:"column:ID;primaryKey;autoIncrement" json:"ID"`
-	Title       string    `gorm:"column:Title;type:varchar(200);not null" json:"Title"`
-	Description string    `gorm:"column:Description;type:text" json:"Description"`
-	Status      string    `gorm:"column:Status;type:status_enum;default:'Pending';not null" json:"Status"`
-	Duedate     time.Time `gorm:"column:Duedate" json:"Duedate"`
-	CreatedAt   time.Time `gorm:"column:CreatedAt;type:timestamp;not null;default:CURRENT_TIMESTAMP" json:"CreatedAt"`
-	UpdatedAt   time.Time `gorm:"column:UpdatedAt;type:timestamp;not null;default:CURRENT_TIMESTAMP" json:"UpdatedAt"`
-	CreatedBy   string    `gorm:"column:CreatedBy;type:varchar(100);not null" json:"CreatedBy"`
-	UpdatedBy   string    `gorm:"column:UpdatedBy;type:varchar(100);not null" json:"UpdatedBy"`
+	ID          int       `gorm:"column:id;primaryKey;autoIncrement" json:"ID" valid:"trim"`
+	Title       string    `gorm:"column:title;type:varchar(200);not null" json:"Title" valid:"trim"`
+	Description string    `gorm:"column:description;type:text" json:"Description" valid:"trim"`
+	Status      string    `gorm:"column:status;type:status_enum;default:'Pending';not null" json:"Status" valid:"trim"`
+	Duedate     time.Time `gorm:"column:duedate" json:"Duedate" valid:"trim"`
+	CreatedAt   time.Time `gorm:"column:createdat;type:timestamp;not null;default:CURRENT_TIMESTAMP" json:"CreatedAt" valid:"trim"`
+	UpdatedAt   time.Time `gorm:"column:updatedat;type:timestamp;not null;default:CURRENT_TIMESTAMP" json:"UpdatedAt" valid:"trim"`
+	CreatedBy   string    `gorm:"column:createdby;type:varchar(100);not null" json:"-" valid:"trim"`
+	UpdatedBy   string    `gorm:"column:updatedby;type:varchar(100);not null" json:"-" valid:"trim"`
 }
 
 type Response struct {
