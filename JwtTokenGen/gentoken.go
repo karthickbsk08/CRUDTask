@@ -3,10 +3,13 @@ package jwttokengen
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"log"
 	"strconv"
 	"strings"
+	"tasks/common"
+	"tasks/helpers"
 	"tasks/tomlutil"
 	"time"
 
@@ -17,12 +20,13 @@ import (
 //Generate JWT Token
 //Step 1 : Generate JWT Secret Key (Random string only knows by server)
 
-func Get_JWT_Secret_Key() string {
-	return fmt.Sprintf(`%v`, tomlutil.ReadTomlConfig("config.toml").(map[string]any)["JWT_Secret_Key"])
+func Get_JWT_Secret_Key(pDebug *helpers.HelperStruct) string {
+	pDebug.Log(helpers.Statement, "Get_JWT_Secret_Key(+)")
+	return fmt.Sprintf(`%v`, tomlutil.ReadTomlConfig("./toml/config.toml").(map[string]any)["JWT_Secret_Key"])
 }
 
-func Generate_JWT_Secret_Key() error {
-
+func Generate_JWT_Secret_Key(pDebug *helpers.HelperStruct) error {
+	pDebug.Log(helpers.Statement, "Generate_JWT_Secret_Key(+)")
 	// Generate 64 random bytes (512-bit key)
 	key := make([]byte, 64)
 
@@ -42,6 +46,7 @@ func Generate_JWT_Secret_Key() error {
 	if err != nil {
 		return err
 	}
+	pDebug.Log(helpers.Statement, "Generate_JWT_Secret_Key(-)")
 	return nil
 }
 
@@ -61,9 +66,10 @@ These are common fields defined in the JWT standard:
 | `jti` | `JWT ID`    | Unique identifier for the token            |
 */
 
-func GenerateRegisterClaims(pPurpose string) jwt.RegisteredClaims {
+func GenerateRegisterClaims(pDebug *helpers.HelperStruct, pPurpose string) jwt.RegisteredClaims {
+	pDebug.Log(helpers.Statement, "GenerateRegisterClaims(+)")
 
-	lConfigInterface := tomlutil.ReadTomlConfig("config.toml")
+	lConfigInterface := tomlutil.ReadTomlConfig("toml/config.toml")
 	lExpireTime, _ := strconv.Atoi(fmt.Sprintf("%v", lConfigInterface.(map[string]any)["EXPIRE_TIME_JWT_TOKEN"]))
 	pAppName := fmt.Sprintf("%v", lConfigInterface.(map[string]any)["JWT_App_Name"])
 
@@ -78,6 +84,7 @@ func GenerateRegisterClaims(pPurpose string) jwt.RegisteredClaims {
 		Subject:   pPurpose,
 		ID:        KeyValue,
 	}
+	pDebug.Log(helpers.Statement, "GenerateRegisterClaims(-)")
 
 	return RegisteredClaims
 
@@ -95,7 +102,7 @@ role – like admin, user, guest
 permissions – optional list
 name, client_id, etc.
 */
-func GenerateUserDetails(pUsername, pPwd string) UserDetails {
+func GenerateUserDetails(pDebug *helpers.HelperStruct, pUsername, pPwd string) UserDetails {
 
 	var lUserDetails = UserDetails{
 		UserID:   pUsername,
@@ -104,14 +111,32 @@ func GenerateUserDetails(pUsername, pPwd string) UserDetails {
 	return lUserDetails
 }
 
-func CreateToken(pclaims Claims) *jwt.Token {
+func CreateToken(pDebug *helpers.HelperStruct, pclaims Claims) *jwt.Token {
+	pDebug.Log(helpers.Statement, "CreateToken(+)")
 	// Create token
 	return jwt.NewWithClaims(jwt.SigningMethodHS256, pclaims)
 }
 
-func SignGenToken(pToken *jwt.Token, jwtKey string) (string, error) {
+func SignGenToken(pDebug *helpers.HelperStruct, pToken *jwt.Token, jwtKey []byte) (string, error) {
+	pDebug.Log(helpers.Statement, "SignGenToken(+) , jwtKey : ", jwtKey)
+
 	var tokenString string
 	var lErr error
+
+	h, err := json.Marshal(pToken.Header)
+	if err != nil {
+		return "", err
+	}
+
+	c, err := json.Marshal(pToken.Claims)
+	if err != nil {
+		return "", err
+	}
+
+	log.Println("h : ", string(h))
+	log.Println("c : ", string(c))
+	log.Println("token : ", pToken.EncodeSegment(h)+"."+pToken.EncodeSegment(c))
+	log.Println("jwttoken : ", common.DoMarshall(pToken))
 
 	// Sign token
 	tokenString, lErr = pToken.SignedString(jwtKey)
@@ -119,35 +144,46 @@ func SignGenToken(pToken *jwt.Token, jwtKey string) (string, error) {
 		log.Println("JWT token sign error")
 		return tokenString, lErr
 	}
-
+	pDebug.Log(helpers.Statement, "SignGenToken(-)")
 	return tokenString, nil
 }
 
-func GenerateJWT(u, p string) (string, error) {
+func GenerateJWT(pDebug *helpers.HelperStruct, u, p string) (string, error) {
+	pDebug.Log(helpers.Statement, "GenerateJWT(+)")
 
 	var lJWT_Token string
 	var lErr error
+	var lDecodedsecretBytes []byte
 
 	//Step 1 : Generate JWT Secret Key
-	lJWT_Secret_Key := Get_JWT_Secret_Key()
+	lJWT_Secret_Key := Get_JWT_Secret_Key(pDebug)
 
 	//Step 2 : Generate Claims Struct
 	var lCliams Claims
 
 	//Step 2.1 Custom Claims
-	lCliams.UserDetails = GenerateUserDetails(u, p)
+	lCliams.UserDetails = GenerateUserDetails(pDebug, u, p)
 
 	//Step 2.2 Register Cliams
-	lCliams.RegisteredClaims = GenerateRegisterClaims(USER_TOKEN)
+	lCliams.RegisteredClaims = GenerateRegisterClaims(pDebug, USER_TOKEN)
 
 	//Step 3 : Generate Token (Unsigned token)
-	lJWTTokenWithoutSigned := CreateToken(lCliams)
+	lJWTTokenWithoutSigned := CreateToken(pDebug, lCliams)
 
-	//Step 4 : Signing Unsigned Token
-	lJWT_Token, lErr = SignGenToken(lJWTTokenWithoutSigned, lJWT_Secret_Key)
+	//Step 3.1 Decode JWT Secret Key
+	lDecodedsecretBytes, lErr = base64.StdEncoding.DecodeString(lJWT_Secret_Key)
 	if lErr != nil {
 		return lJWT_Token, lErr
 	}
 
+	//Step 4 : Signing Unsigned Token
+	lJWT_Token, lErr = SignGenToken(pDebug, lJWTTokenWithoutSigned, lDecodedsecretBytes)
+	if lErr != nil {
+		return lJWT_Token, lErr
+	}
+
+	log.Println("toekn : ", lJWT_Token)
+	// lJWT_Token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoia2FydGhpY2siLCJlbWFpbCI6IiIsInJvbGUiOiIiLCJwd2QiOiJiZXN0QDEyMyIsImlzcyI6InRhc2tzIiwic3ViIjoidXNlcl90b2tlbiIsImV4cCI6MTc1MTcyODA1MCwiaWF0IjoxNzUxNzI0NjkwLCJqdGkiOiJjMzhmNDU1MGI5N2U0OGQxOTUyOWZjMThmODA0ZTU5MCJ9"
+	pDebug.Log(helpers.Statement, "GenerateJWT(-)")
 	return lJWT_Token, nil
 }

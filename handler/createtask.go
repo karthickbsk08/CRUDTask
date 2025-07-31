@@ -5,6 +5,7 @@ import (
 	"net/http"
 	connectdb "tasks/ConnectDB"
 	govalidatorpkg "tasks/GovalidatorPkg"
+	"tasks/beequeue"
 	"tasks/common"
 	"tasks/constants"
 	"tasks/helpers"
@@ -74,6 +75,8 @@ func CreateTask(w http.ResponseWriter, r *http.Request) {
 		common.DoMarshallnWriteResponse(lCreateTaskReq, w)
 		return
 	}
+	// At this point, the code has just finished validating and cleaning the input struct (lCreateTaskReq).
+	// No additional logic is performed here; the next step is to check the type of the request struct.
 	lErr = common.TypeChecker[models.CreateTask](&lCreateTaskReq)
 	if lErr != nil {
 		lCreateTaskReq.APIStatus = constants.ErrorCode
@@ -89,6 +92,9 @@ func CreateTask(w http.ResponseWriter, r *http.Request) {
 		common.DoMarshallnWriteResponse(lCreateTaskReq, w)
 		return
 	}
+	payload := beequeue.TaskPayload{Email: "karthick.b@flattrade.co.in", Title: lCreateTaskReq.Title, DueDate: lCreateTaskReq.DueDate}
+
+	beequeue.PushTasksIntoRedis(lDebug, payload)
 	// constants.Offset_Auto_increment = constants.Offset_Auto_increment + 1
 	common.DoMarshallnWriteResponse(lCreateTaskReq, w)
 	lDebug.Log(helpers.Statement, "CreateTask(-)")

@@ -14,12 +14,15 @@ type CreateTask struct {
 	APIError    string `json:"APIError"`
 }
 
+// id,username,passwordhash,createdat,updatedat,createdby,updatedby
 type Users struct {
-	ID           int    `json:"ID"`
-	UserName     string `json:"UserName"`
-	PasswordHash string `json:"PasswordHash"`
-	CreatedAt    string `json:"CreatedAt"`
-	UpdatedAt    string `json:"UpdatedAt"`
+	ID           int       `json:"ID" gorm:"column:id"`
+	UserName     string    `json:"UserName" gorm:"column:username"`
+	PasswordHash string    `json:"PasswordHash" gorm:"column:passwordhash"`
+	CreatedAt    time.Time `json:"CreatedAt" gorm:"column:createdat"`
+	UpdatedAt    time.Time `json:"UpdatedAt" gorm:"column:updatedat"`
+	CreatedBy    string    `json:"CreatedBy" gorm:"column:createdby"`
+	UpdatedBy    string    `json:"UpdatedBy" gorm:"column:updatedby"`
 }
 
 type TaskQueryParams struct {
