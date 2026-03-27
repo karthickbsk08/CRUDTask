@@ -35,4 +35,12 @@ jobs:
         run: go test ./... -v
 
       - name: Build
-        run: go build -o app
+        run: go build -o app   
+        
+      - name: Run application
+        run: ./app
+
+
+
+
+
