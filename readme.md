@@ -1,1 +1,0 @@
-![JWT Diagram](./JWT.png)
