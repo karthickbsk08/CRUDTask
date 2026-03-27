@@ -6,11 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"strings"
 	ratelimiter "tasks/apigate/rateLimiter"
-	"tasks/common"
 	"tasks/constants"
 	"tasks/helpers"
 	"time"
@@ -118,9 +116,9 @@ func RequestMiddleWare(next http.Handler) http.Handler {
 			ResponseStatus:   int64(RespStatus),
 			PDebug:           lDebug,
 		}
-		ApiCallLogChannel <- LogEntry
+		// ApiCallLogChannel <- LogEntry
 
-		lDebug.Log(helpers.Statement, "RequestMiddleWare(-)", lDebug.Sid)
+		lDebug.Log(helpers.Statement, "RequestMiddleWare(-)", lDebug.Sid, LogEntry)
 
 	})
 }
