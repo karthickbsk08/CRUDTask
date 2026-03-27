@@ -89,5 +89,8 @@ func InsertLoginUserDetlInDB(pDebug *helpers.HelperStruct, pNewUserRec *models.L
 	}
 	pDebug.Log(helpers.Statement, "InsertLoginUserDetlInDB(-)")
 	return nil
+}
 
+func Ready(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Program Running Successfully")
 }
